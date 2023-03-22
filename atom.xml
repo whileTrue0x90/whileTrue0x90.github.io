@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-  <title>Hexo</title>
+  <title>whileTrue0x90&#39;s blog</title>
   
-  
+  <subtitle>subtitle</subtitle>
   <link href="http://www.5isan.com/atom.xml" rel="self"/>
   
   <link href="http://www.5isan.com/"/>
@@ -10,7 +10,7 @@
   <id>http://www.5isan.com/</id>
   
   <author>
-    <name>John Doe</name>
+    <name>whileTrue0x90</name>
     
   </author>
   
