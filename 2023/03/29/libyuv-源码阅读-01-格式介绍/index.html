@@ -1,0 +1,359 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><title>libyuv 源码阅读 01 格式介绍 | whileTrue0x90's blog</title><meta name="author" content="whileTrue0x90"><meta name="copyright" content="whileTrue0x90"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="https:&#x2F;&#x2F;github.com&#x2F;whileTrue0x90&#x2F;libyuv&#x2F;blob&#x2F;main&#x2F;docs&#x2F;formats.md Introduction 介绍Formats (FOURCC) supported by libyuv are detailed here.  这里详细介绍了libyuv支持的格式（FOURCC）。  Core Formats 核心格式There are 2 core">
+<meta property="og:type" content="article">
+<meta property="og:title" content="libyuv 源码阅读 01 格式介绍">
+<meta property="og:url" content="http://www.5isan.com/2023/03/29/libyuv-%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB-01-%E6%A0%BC%E5%BC%8F%E4%BB%8B%E7%BB%8D/index.html">
+<meta property="og:site_name" content="whileTrue0x90&#39;s blog">
+<meta property="og:description" content="https:&#x2F;&#x2F;github.com&#x2F;whileTrue0x90&#x2F;libyuv&#x2F;blob&#x2F;main&#x2F;docs&#x2F;formats.md Introduction 介绍Formats (FOURCC) supported by libyuv are detailed here.  这里详细介绍了libyuv支持的格式（FOURCC）。  Core Formats 核心格式There are 2 core">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png">
+<meta property="article:published_time" content="2023-03-29T02:33:56.000Z">
+<meta property="article:modified_time" content="2023-03-29T02:39:05.554Z">
+<meta property="article:author" content="whileTrue0x90">
+<meta property="article:tag" content="libyuv">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://www.5isan.com/2023/03/29/libyuv-%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB-01-%E6%A0%BC%E5%BC%8F%E4%BB%8B%E7%BB%8D/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'libyuv 源码阅读 01 格式介绍',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-03-29 10:39:05'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="whileTrue0x90's blog" type="application/atom+xml">
+</head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">1</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div><hr/></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="whileTrue0x90's blog"><span class="site-name">whileTrue0x90's blog</span></a></span><div id="menus"><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">libyuv 源码阅读 01 格式介绍</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-03-29T02:33:56.000Z" title="发表于 2023-03-29 10:33:56">2023-03-29</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-03-29T02:39:05.554Z" title="更新于 2023-03-29 10:39:05">2023-03-29</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">源码阅读</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="libyuv 源码阅读 01 格式介绍"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><a target="_blank" rel="noopener" href="https://github.com/whileTrue0x90/libyuv/blob/main/docs/formats.md">https://github.com/whileTrue0x90/libyuv/blob/main/docs/formats.md</a></p>
+<h1 id="Introduction-介绍"><a href="#Introduction-介绍" class="headerlink" title="Introduction 介绍"></a>Introduction 介绍</h1><p>Formats (FOURCC) supported by libyuv are detailed here.</p>
+<blockquote>
+<p>这里详细介绍了libyuv支持的格式（FOURCC）。</p>
+</blockquote>
+<h1 id="Core-Formats-核心格式"><a href="#Core-Formats-核心格式" class="headerlink" title="Core Formats 核心格式"></a>Core Formats 核心格式</h1><p>There are 2 core formats supported by libyuv - I420 and ARGB. All YUV formats can be converted to&#x2F;from I420. All RGB formats can be converted to&#x2F;from ARGB.</p>
+<blockquote>
+<p>libyuv支持两种核心格式I420和ARGB。所有YUV格式都可以转换为I420或从I420转换。所有RGB格式都可以转换为ARGB或从ARGB转换。</p>
+</blockquote>
+<p>Filtering functions such as scaling and planar functions work on I420 and&#x2F;or ARGB.</p>
+<blockquote>
+<p>诸如缩放和平面函数之类的滤波函数在I420和&#x2F;或ARGB上工作。</p>
+</blockquote>
+<h1 id="OSX-Core-Media-Pixel-Formats-OSX核心媒体像素格式"><a href="#OSX-Core-Media-Pixel-Formats-OSX核心媒体像素格式" class="headerlink" title="OSX Core Media Pixel Formats OSX核心媒体像素格式"></a>OSX Core Media Pixel Formats OSX核心媒体像素格式</h1><p>This is how OSX formats map to libyuv</p>
+<blockquote>
+<p>这是OSX格式映射到libyuv的方式</p>
+</blockquote>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">enum</span> &#123;</span><br><span class="line">    kCMPixelFormat_32ARGB          = <span class="number">32</span>,      FOURCC_BGRA</span><br><span class="line">	kCMPixelFormat_32BGRA          = <span class="string">&#x27;BGRA&#x27;</span>,  FOURCC_ARGB</span><br><span class="line">    kCMPixelFormat_24RGB           = <span class="number">24</span>,      FOURCC_RAW</span><br><span class="line">    kCMPixelFormat_16BE555         = <span class="number">16</span>,      Not supported.</span><br><span class="line">    kCMPixelFormat_16BE565         = <span class="string">&#x27;B565&#x27;</span>,  Not supported.</span><br><span class="line">    kCMPixelFormat_16LE555         = <span class="string">&#x27;L555&#x27;</span>,  FOURCC_RGBO</span><br><span class="line">    kCMPixelFormat_16LE565         = <span class="string">&#x27;L565&#x27;</span>,  FOURCC_RGBP</span><br><span class="line">    kCMPixelFormat_16LE5551        = <span class="string">&#x27;5551&#x27;</span>,  FOURCC_RGBO</span><br><span class="line">    kCMPixelFormat_422YpCbCr8      = <span class="string">&#x27;2vuy&#x27;</span>,  FOURCC_UYVY</span><br><span class="line">    kCMPixelFormat_422YpCbCr8_yuvs = <span class="string">&#x27;yuvs&#x27;</span>,  FOURCC_YUY2</span><br><span class="line">    kCMPixelFormat_444YpCbCr8      = <span class="string">&#x27;v308&#x27;</span>,  FOURCC_I444 ?</span><br><span class="line">    kCMPixelFormat_4444YpCbCrA8    = <span class="string">&#x27;v408&#x27;</span>,  Not supported.</span><br><span class="line">    kCMPixelFormat_422YpCbCr16     = <span class="string">&#x27;v216&#x27;</span>,  Not supported.</span><br><span class="line">    kCMPixelFormat_422YpCbCr10     = <span class="string">&#x27;v210&#x27;</span>,  FOURCC_V210 previously.  Removed now.</span><br><span class="line">    kCMPixelFormat_444YpCbCr10     = <span class="string">&#x27;v410&#x27;</span>,  Not supported.</span><br><span class="line">    kCMPixelFormat_8IndexedGray_WhiteIsZero = <span class="number">0x00000028</span>,  Not supported.</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h1 id="FOURCC-Four-Charactacter-Code-List-OURCC（四个字符代码）列表"><a href="#FOURCC-Four-Charactacter-Code-List-OURCC（四个字符代码）列表" class="headerlink" title="FOURCC (Four Charactacter Code) List OURCC（四个字符代码）列表"></a>FOURCC (Four Charactacter Code) List OURCC（四个字符代码）列表</h1><p>The following is extracted from <code>video_common.h</code> as a complete list of formats supported by libyuv. </p>
+<blockquote>
+<p>以下是从<code>video_common.h</code>中提取的libyuv支持的格式的完整列表。</p>
+</blockquote>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">enum</span> FourCC &#123;</span><br><span class="line">    <span class="comment">// 10 Primary YUV formats: 5 planar, 2 biplanar, 2 packed.</span></span><br><span class="line">    FOURCC_I420 = FOURCC(<span class="string">&#x27;I&#x27;</span>, <span class="string">&#x27;4&#x27;</span>, <span class="string">&#x27;2&#x27;</span>, <span class="string">&#x27;0&#x27;</span>),</span><br><span class="line">    FOURCC_I422 = FOURCC(<span class="string">&#x27;I&#x27;</span>, <span class="string">&#x27;4&#x27;</span>, <span class="string">&#x27;2&#x27;</span>, <span class="string">&#x27;2&#x27;</span>),</span><br><span class="line">    FOURCC_I444 = FOURCC(<span class="string">&#x27;I&#x27;</span>, <span class="string">&#x27;4&#x27;</span>, <span class="string">&#x27;4&#x27;</span>, <span class="string">&#x27;4&#x27;</span>),</span><br><span class="line">    FOURCC_I400 = FOURCC(<span class="string">&#x27;I&#x27;</span>, <span class="string">&#x27;4&#x27;</span>, <span class="string">&#x27;0&#x27;</span>, <span class="string">&#x27;0&#x27;</span>),</span><br><span class="line">    FOURCC_NV21 = FOURCC(<span class="string">&#x27;N&#x27;</span>, <span class="string">&#x27;V&#x27;</span>, <span class="string">&#x27;2&#x27;</span>, <span class="string">&#x27;1&#x27;</span>),</span><br><span class="line">    FOURCC_NV12 = FOURCC(<span class="string">&#x27;N&#x27;</span>, <span class="string">&#x27;V&#x27;</span>, <span class="string">&#x27;1&#x27;</span>, <span class="string">&#x27;2&#x27;</span>),</span><br><span class="line">    FOURCC_YUY2 = FOURCC(<span class="string">&#x27;Y&#x27;</span>, <span class="string">&#x27;U&#x27;</span>, <span class="string">&#x27;Y&#x27;</span>, <span class="string">&#x27;2&#x27;</span>),</span><br><span class="line">    FOURCC_UYVY = FOURCC(<span class="string">&#x27;U&#x27;</span>, <span class="string">&#x27;Y&#x27;</span>, <span class="string">&#x27;V&#x27;</span>, <span class="string">&#x27;Y&#x27;</span>),</span><br><span class="line">    FOURCC_H010 = FOURCC(<span class="string">&#x27;H&#x27;</span>, <span class="string">&#x27;0&#x27;</span>, <span class="string">&#x27;1&#x27;</span>, <span class="string">&#x27;0&#x27;</span>),  <span class="comment">// unofficial fourcc. 10 bit lsb</span></span><br><span class="line">    FOURCC_U010 = FOURCC(<span class="string">&#x27;U&#x27;</span>, <span class="string">&#x27;0&#x27;</span>, <span class="string">&#x27;1&#x27;</span>, <span class="string">&#x27;0&#x27;</span>),  <span class="comment">// bt.2020, unofficial fourcc.</span></span><br><span class="line">    										   <span class="comment">// 10 bit lsb</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 1 Secondary YUV format: row biplanar.</span></span><br><span class="line">    FOURCC_M420 = FOURCC(<span class="string">&#x27;M&#x27;</span>, <span class="string">&#x27;4&#x27;</span>, <span class="string">&#x27;2&#x27;</span>, <span class="string">&#x27;0&#x27;</span>),  <span class="comment">// deprecated.</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 13 Primary RGB formats: 4 32 bpp, 2 24 bpp, 3 16 bpp, 1 10 bpc, 2 64 bpp</span></span><br><span class="line">    FOURCC_ARGB = FOURCC(<span class="string">&#x27;A&#x27;</span>, <span class="string">&#x27;R&#x27;</span>, <span class="string">&#x27;G&#x27;</span>, <span class="string">&#x27;B&#x27;</span>),</span><br><span class="line">    FOURCC_BGRA = FOURCC(<span class="string">&#x27;B&#x27;</span>, <span class="string">&#x27;G&#x27;</span>, <span class="string">&#x27;R&#x27;</span>, <span class="string">&#x27;A&#x27;</span>),</span><br><span class="line">    FOURCC_ABGR = FOURCC(<span class="string">&#x27;A&#x27;</span>, <span class="string">&#x27;B&#x27;</span>, <span class="string">&#x27;G&#x27;</span>, <span class="string">&#x27;R&#x27;</span>),</span><br><span class="line">    FOURCC_AR30 = FOURCC(<span class="string">&#x27;A&#x27;</span>, <span class="string">&#x27;R&#x27;</span>, <span class="string">&#x27;3&#x27;</span>, <span class="string">&#x27;0&#x27;</span>),  <span class="comment">// 10 bit per channel. 2101010.</span></span><br><span class="line">    FOURCC_AB30 = FOURCC(<span class="string">&#x27;A&#x27;</span>, <span class="string">&#x27;B&#x27;</span>, <span class="string">&#x27;3&#x27;</span>, <span class="string">&#x27;0&#x27;</span>),  <span class="comment">// ABGR version of 10 bit</span></span><br><span class="line">    FOURCC_AR64 = FOURCC(<span class="string">&#x27;A&#x27;</span>, <span class="string">&#x27;R&#x27;</span>, <span class="string">&#x27;6&#x27;</span>, <span class="string">&#x27;4&#x27;</span>),  <span class="comment">// 16 bit per channel.</span></span><br><span class="line">    FOURCC_AB64 = FOURCC(<span class="string">&#x27;A&#x27;</span>, <span class="string">&#x27;B&#x27;</span>, <span class="string">&#x27;6&#x27;</span>, <span class="string">&#x27;4&#x27;</span>),  <span class="comment">// ABGR version of 16 bit</span></span><br><span class="line">    FOURCC_24BG = FOURCC(<span class="string">&#x27;2&#x27;</span>, <span class="string">&#x27;4&#x27;</span>, <span class="string">&#x27;B&#x27;</span>, <span class="string">&#x27;G&#x27;</span>),</span><br><span class="line">    FOURCC_RAW = FOURCC(<span class="string">&#x27;r&#x27;</span>, <span class="string">&#x27;a&#x27;</span>, <span class="string">&#x27;w&#x27;</span>, <span class="string">&#x27; &#x27;</span>),</span><br><span class="line">    FOURCC_RGBA = FOURCC(<span class="string">&#x27;R&#x27;</span>, <span class="string">&#x27;G&#x27;</span>, <span class="string">&#x27;B&#x27;</span>, <span class="string">&#x27;A&#x27;</span>),</span><br><span class="line">    FOURCC_RGBP = FOURCC(<span class="string">&#x27;R&#x27;</span>, <span class="string">&#x27;G&#x27;</span>, <span class="string">&#x27;B&#x27;</span>, <span class="string">&#x27;P&#x27;</span>),  <span class="comment">// rgb565 LE.</span></span><br><span class="line">    FOURCC_RGBO = FOURCC(<span class="string">&#x27;R&#x27;</span>, <span class="string">&#x27;G&#x27;</span>, <span class="string">&#x27;B&#x27;</span>, <span class="string">&#x27;O&#x27;</span>),  <span class="comment">// argb1555 LE.</span></span><br><span class="line">    FOURCC_R444 = FOURCC(<span class="string">&#x27;R&#x27;</span>, <span class="string">&#x27;4&#x27;</span>, <span class="string">&#x27;4&#x27;</span>, <span class="string">&#x27;4&#x27;</span>),  <span class="comment">// argb4444 LE.</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 1 Primary Compressed YUV format.</span></span><br><span class="line">    FOURCC_MJPG = FOURCC(<span class="string">&#x27;M&#x27;</span>, <span class="string">&#x27;J&#x27;</span>, <span class="string">&#x27;P&#x27;</span>, <span class="string">&#x27;G&#x27;</span>),</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 11 Auxiliary YUV variations: 3 with U and V planes are swapped, 1 Alias.</span></span><br><span class="line">    FOURCC_YV12 = FOURCC(<span class="string">&#x27;Y&#x27;</span>, <span class="string">&#x27;V&#x27;</span>, <span class="string">&#x27;1&#x27;</span>, <span class="string">&#x27;2&#x27;</span>),</span><br><span class="line">    FOURCC_YV16 = FOURCC(<span class="string">&#x27;Y&#x27;</span>, <span class="string">&#x27;V&#x27;</span>, <span class="string">&#x27;1&#x27;</span>, <span class="string">&#x27;6&#x27;</span>),</span><br><span class="line">    FOURCC_YV24 = FOURCC(<span class="string">&#x27;Y&#x27;</span>, <span class="string">&#x27;V&#x27;</span>, <span class="string">&#x27;2&#x27;</span>, <span class="string">&#x27;4&#x27;</span>),</span><br><span class="line">    FOURCC_YU12 = FOURCC(<span class="string">&#x27;Y&#x27;</span>, <span class="string">&#x27;U&#x27;</span>, <span class="string">&#x27;1&#x27;</span>, <span class="string">&#x27;2&#x27;</span>),  <span class="comment">// Linux version of I420.</span></span><br><span class="line">    FOURCC_J420 = FOURCC(<span class="string">&#x27;J&#x27;</span>, <span class="string">&#x27;4&#x27;</span>, <span class="string">&#x27;2&#x27;</span>, <span class="string">&#x27;0&#x27;</span>),</span><br><span class="line">    FOURCC_J400 = FOURCC(<span class="string">&#x27;J&#x27;</span>, <span class="string">&#x27;4&#x27;</span>, <span class="string">&#x27;0&#x27;</span>, <span class="string">&#x27;0&#x27;</span>),  <span class="comment">// unofficial fourcc</span></span><br><span class="line">    FOURCC_H420 = FOURCC(<span class="string">&#x27;H&#x27;</span>, <span class="string">&#x27;4&#x27;</span>, <span class="string">&#x27;2&#x27;</span>, <span class="string">&#x27;0&#x27;</span>),  <span class="comment">// unofficial fourcc</span></span><br><span class="line">    FOURCC_H422 = FOURCC(<span class="string">&#x27;H&#x27;</span>, <span class="string">&#x27;4&#x27;</span>, <span class="string">&#x27;2&#x27;</span>, <span class="string">&#x27;2&#x27;</span>),  <span class="comment">// unofficial fourcc</span></span><br><span class="line">    FOURCC_U420 = FOURCC(<span class="string">&#x27;U&#x27;</span>, <span class="string">&#x27;4&#x27;</span>, <span class="string">&#x27;2&#x27;</span>, <span class="string">&#x27;0&#x27;</span>),  <span class="comment">// bt.2020, unofficial fourcc</span></span><br><span class="line">    FOURCC_U422 = FOURCC(<span class="string">&#x27;U&#x27;</span>, <span class="string">&#x27;4&#x27;</span>, <span class="string">&#x27;2&#x27;</span>, <span class="string">&#x27;2&#x27;</span>),  <span class="comment">// bt.2020, unofficial fourcc</span></span><br><span class="line">    FOURCC_U444 = FOURCC(<span class="string">&#x27;U&#x27;</span>, <span class="string">&#x27;4&#x27;</span>, <span class="string">&#x27;4&#x27;</span>, <span class="string">&#x27;4&#x27;</span>),  <span class="comment">// bt.2020, unofficial fourcc</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 14 Auxiliary aliases.  CanonicalFourCC() maps these to canonical fourcc.</span></span><br><span class="line">    FOURCC_IYUV = FOURCC(<span class="string">&#x27;I&#x27;</span>, <span class="string">&#x27;Y&#x27;</span>, <span class="string">&#x27;U&#x27;</span>, <span class="string">&#x27;V&#x27;</span>),  <span class="comment">// Alias for I420.</span></span><br><span class="line">    FOURCC_YU16 = FOURCC(<span class="string">&#x27;Y&#x27;</span>, <span class="string">&#x27;U&#x27;</span>, <span class="string">&#x27;1&#x27;</span>, <span class="string">&#x27;6&#x27;</span>),  <span class="comment">// Alias for I422.</span></span><br><span class="line">    FOURCC_YU24 = FOURCC(<span class="string">&#x27;Y&#x27;</span>, <span class="string">&#x27;U&#x27;</span>, <span class="string">&#x27;2&#x27;</span>, <span class="string">&#x27;4&#x27;</span>),  <span class="comment">// Alias for I444.</span></span><br><span class="line">    FOURCC_YUYV = FOURCC(<span class="string">&#x27;Y&#x27;</span>, <span class="string">&#x27;U&#x27;</span>, <span class="string">&#x27;Y&#x27;</span>, <span class="string">&#x27;V&#x27;</span>),  <span class="comment">// Alias for YUY2.</span></span><br><span class="line">    FOURCC_YUVS = FOURCC(<span class="string">&#x27;y&#x27;</span>, <span class="string">&#x27;u&#x27;</span>, <span class="string">&#x27;v&#x27;</span>, <span class="string">&#x27;s&#x27;</span>),  <span class="comment">// Alias for YUY2 on Mac.</span></span><br><span class="line">    FOURCC_HDYC = FOURCC(<span class="string">&#x27;H&#x27;</span>, <span class="string">&#x27;D&#x27;</span>, <span class="string">&#x27;Y&#x27;</span>, <span class="string">&#x27;C&#x27;</span>),  <span class="comment">// Alias for UYVY.</span></span><br><span class="line">    FOURCC_2VUY = FOURCC(<span class="string">&#x27;2&#x27;</span>, <span class="string">&#x27;v&#x27;</span>, <span class="string">&#x27;u&#x27;</span>, <span class="string">&#x27;y&#x27;</span>),  <span class="comment">// Alias for UYVY on Mac.</span></span><br><span class="line">    FOURCC_JPEG = FOURCC(<span class="string">&#x27;J&#x27;</span>, <span class="string">&#x27;P&#x27;</span>, <span class="string">&#x27;E&#x27;</span>, <span class="string">&#x27;G&#x27;</span>),  <span class="comment">// Alias for MJPG.</span></span><br><span class="line">    FOURCC_DMB1 = FOURCC(<span class="string">&#x27;d&#x27;</span>, <span class="string">&#x27;m&#x27;</span>, <span class="string">&#x27;b&#x27;</span>, <span class="string">&#x27;1&#x27;</span>),  <span class="comment">// Alias for MJPG on Mac.</span></span><br><span class="line">    FOURCC_BA81 = FOURCC(<span class="string">&#x27;B&#x27;</span>, <span class="string">&#x27;A&#x27;</span>, <span class="string">&#x27;8&#x27;</span>, <span class="string">&#x27;1&#x27;</span>),  <span class="comment">// Alias for BGGR.</span></span><br><span class="line">    FOURCC_RGB3 = FOURCC(<span class="string">&#x27;R&#x27;</span>, <span class="string">&#x27;G&#x27;</span>, <span class="string">&#x27;B&#x27;</span>, <span class="string">&#x27;3&#x27;</span>),  <span class="comment">// Alias for RAW.</span></span><br><span class="line">    FOURCC_BGR3 = FOURCC(<span class="string">&#x27;B&#x27;</span>, <span class="string">&#x27;G&#x27;</span>, <span class="string">&#x27;R&#x27;</span>, <span class="string">&#x27;3&#x27;</span>),  <span class="comment">// Alias for 24BG.</span></span><br><span class="line">    FOURCC_CM32 = FOURCC(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">32</span>),  <span class="comment">// Alias for BGRA kCMPixelFormat_32ARGB</span></span><br><span class="line">    FOURCC_CM24 = FOURCC(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">24</span>),  <span class="comment">// Alias for RAW kCMPixelFormat_24RGB</span></span><br><span class="line">    FOURCC_L555 = FOURCC(<span class="string">&#x27;L&#x27;</span>, <span class="string">&#x27;5&#x27;</span>, <span class="string">&#x27;5&#x27;</span>, <span class="string">&#x27;5&#x27;</span>),  <span class="comment">// Alias for RGBO.</span></span><br><span class="line">    FOURCC_L565 = FOURCC(<span class="string">&#x27;L&#x27;</span>, <span class="string">&#x27;5&#x27;</span>, <span class="string">&#x27;6&#x27;</span>, <span class="string">&#x27;5&#x27;</span>),  <span class="comment">// Alias for RGBP.</span></span><br><span class="line">    FOURCC_5551 = FOURCC(<span class="string">&#x27;5&#x27;</span>, <span class="string">&#x27;5&#x27;</span>, <span class="string">&#x27;5&#x27;</span>, <span class="string">&#x27;1&#x27;</span>),  <span class="comment">// Alias for RGBO.</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="Planar-YUV-平面YUV"><a href="#Planar-YUV-平面YUV" class="headerlink" title="Planar YUV 平面YUV"></a>Planar YUV 平面YUV</h1><p>The following formats contains a full size Y plane followed by 1 or 2 planes for UV:</p>
+<blockquote>
+<p>以下格式包含一个全尺寸Y平面，后面是1或2个UV平面</p>
+</blockquote>
+<p> I420, I422, I444, I400, NV21, NV12, I400<br>The size (subsampling) of the UV varies.</p>
+<blockquote>
+<p>UV的大小（子采样）会发生变化。</p>
+</blockquote>
+<p>I420, NV12 and NV21 are half width, half height<br>I422, NV16 and NV61 are half width, full height<br>I444, NV24 and NV42 are full width, full height<br>I400 and J400 have no chroma channel.</p>
+<h1 id="Color-space-颜色空间"><a href="#Color-space-颜色空间" class="headerlink" title="Color space 颜色空间"></a>Color space 颜色空间</h1><p>The YUV formats start with a letter to specify the color space. e.g. I420</p>
+<blockquote>
+<p>YUV格式以字母开头以指定颜色空间。例如I420</p>
+</blockquote>
+<p>I &#x3D; BT.601 limited range<br>J &#x3D; BT.601 full range     (J &#x3D; JPEG that uses this)<br>H &#x3D; BT.709 limited range  (H for HD)<br>F &#x3D; BT.709 full range     (F for Full range)<br>U &#x3D; BT.2020 limited range (U for UHD)<br>V &#x3D; BT.2020 full range<br>For YUV to RGB conversions, a matrix can be passed.  See also <code>convert_argh.h</code></p>
+<blockquote>
+<p>对于YUV到RGB的转换，可以传递一个矩阵。另请参见 <code>convert_argh.h</code></p>
+</blockquote>
+<h1 id="HDR-formats-HDR格式"><a href="#HDR-formats-HDR格式" class="headerlink" title="HDR formats HDR格式"></a>HDR formats HDR格式</h1><p>Planar formats with 10 or 12 bits use the following fourcc:</p>
+<blockquote>
+<p>具有10或12位的平面格式使用以下fourcc：</p>
+</blockquote>
+<p>I010, I012, P010, P012 are half width, half height<br>I210, I212, P210, P212 are half width, full height<br>I410, I412, P410, P412 are full width, full height<br>where</p>
+<blockquote>
+<p>解释</p>
+</blockquote>
+<p>I is the color space (see above) and 3 planes: Y, U and V.</p>
+<blockquote>
+<p>I是颜色空间（见上文）和3个平面：Y、U和V。</p>
+</blockquote>
+<p>P is a biplanar format, similar to NV12 but 16 bits, with the valid bits in the high bits.  There is a Y plane and a UV plane.</p>
+<blockquote>
+<p>P是一种双平面格式，类似于NV12，但16位，有效位在高位。有一个Y平面和一个UV平面。</p>
+</blockquote>
+<p>0, 2 or 4 is the last digit of subsampling: 4:2:0, 4:2:2, or 4:4:4</p>
+<blockquote>
+<p>0、2或4是子采样的最后一位：4:2:0、4:2:2或4:4:4</p>
+</blockquote>
+<p>10 or 12 is the bits per channel.  The bits are in the low bits of a 16 bit channel.</p>
+<blockquote>
+<p>10或12是每个信道的比特。这些位位于16位信道的低位。</p>
+</blockquote>
+<h1 id="The-ARGB-FOURCC"><a href="#The-ARGB-FOURCC" class="headerlink" title="The ARGB FOURCC"></a>The ARGB FOURCC</h1><p>There are 4 ARGB layouts - ARGB, BGRA, ABGR and RGBA. ARGB is most common by far, used for screen formats, and windows webcam drivers.</p>
+<blockquote>
+<p>有4种ARGB布局-ARGB、BGRA、ABGR和RGBA。ARGB是目前最常见的，用于屏幕格式和windows网络摄像头驱动程序。</p>
+</blockquote>
+<p>The fourcc describes the order of channels in a <em><strong>register</strong></em>.</p>
+<blockquote>
+<p>fourcc描述<strong>寄存器</strong>中通道的顺序。</p>
+</blockquote>
+<p>A fourcc provided by capturer, can be thought of string, e.g. “ARGB”.</p>
+<blockquote>
+<p>capturer提供的fourcc可以被认为是字符串，例如“ARGB”。</p>
+</blockquote>
+<p>On little endian machines, as an int, this would have ‘A’ in the lowest byte. The FOURCC macro reverses the order:</p>
+<blockquote>
+<p>在little-endian机器上，作为一个int，它将在最低字节中包含“A”。FOURCC宏的顺序相反：</p>
+</blockquote>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> FOURCC(a, b, c, d) (((uint32)(a)) | ((uint32)(b) &lt;&lt; 8) | ((uint32)(c) &lt;&lt; 16) | ((uint32)(d) &lt;&lt; 24))</span></span><br></pre></td></tr></table></figure>
+<p>So the “ARGB” string, read as an uint32, is</p>
+<blockquote>
+<p>因此，读取为uint32的“ARGB”字符串是</p>
+</blockquote>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">FOURCC_ARGB = FOURCC(<span class="string">&#x27;A&#x27;</span>, <span class="string">&#x27;R&#x27;</span>, <span class="string">&#x27;G&#x27;</span>, <span class="string">&#x27;B&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<p>If you were to read ARGB pixels as uint32’s, the alpha would be in the high byte, and the blue in the lowest byte. In memory, these are stored little endian, so ‘B’ is first, then ‘G’, ‘R’ and ‘A’ last.</p>
+<blockquote>
+<p>如果要将ARGB像素读取为uint32，则alpha位于高位字节，而蓝色位于低位字节。在内存中，这些都是小端的，所以“B”是第一个，然后是“G”、“R”和“A”是最后一个。</p>
+</blockquote>
+<p>When calling conversion functions, the names match the FOURCC, so in this case it would be I420ToARGB().</p>
+<blockquote>
+<p>当调用转换函数时，名称与FOURCC匹配，因此在本例中它将是I420ToARGB（）。</p>
+</blockquote>
+<p>All formats can be converted to&#x2F;from ARGB.</p>
+<blockquote>
+<p>所有格式都可以转换为ARGB格式。</p>
+</blockquote>
+<p>Most ‘planar_functions’ work on ARGB (e.g. ARGBBlend).</p>
+<blockquote>
+<p>大多数“planar_functions”在ARGB上工作（例如ARGBLend）。</p>
+</blockquote>
+<p>Some are channel order agnostic (e.g. ARGBScale).</p>
+<blockquote>
+<p>有些是信道顺序不可知的（例如ARGBScale）。</p>
+</blockquote>
+<p>Some functions are symmetric (e.g. ARGBToBGRA is the same as BGRAToARGB, so its a macro).</p>
+<blockquote>
+<p>有些函数是对称的（例如，ARGBToBGRA与BGRAToARGB相同，因此它是一个宏）。</p>
+</blockquote>
+<p>ARGBBlend expects preattenuated ARGB. The R,G,B are premultiplied by alpha. Other functions don’t care.</p>
+<blockquote>
+<p>ARGBBlend预期为预先评估的ARGB。R、G、B被α预乘。其他功能无关紧要。</p>
+</blockquote>
+<h1 id="RGB24-and-RAW"><a href="#RGB24-and-RAW" class="headerlink" title="RGB24 and RAW"></a>RGB24 and RAW</h1><p>There are 2 RGB layouts - RGB24 (aka 24BG) and RAW</p>
+<blockquote>
+<p>RGB24（又名24BG）和RAW有2种RGB布局</p>
+</blockquote>
+<p>RGB24 is B,G,R in memory </p>
+<blockquote>
+<p>RGB24在内存中为B、G、R</p>
+</blockquote>
+<p>RAW is R,G,B in memory</p>
+<blockquote>
+<p>RAW是内存中的R、G、B</p>
+</blockquote>
+<h1 id="AR30-and-XR30"><a href="#AR30-and-XR30" class="headerlink" title="AR30 and XR30"></a>AR30 and XR30</h1><p>AR30 is 2 10 10 10 ARGB stored in little endian order. </p>
+<blockquote>
+<p>AR30是以小端顺序存储的2 10 10 10 ARGB。</p>
+</blockquote>
+<p>The 2 bit alpha has 4 values. Here are the comparable 8 bit alpha values. </p>
+<blockquote>
+<p>2位alpha有4个值。以下是可比较的8位alpha值。</p>
+</blockquote>
+<p>0 - 0. 00000000b &#x3D; 0x00 &#x3D; 0<br>1 - 33%. 01010101b &#x3D; 0x55 &#x3D; 85<br>2 - 66%. 10101010b &#x3D; 0xaa &#x3D; 170<br>3 - 100%. 11111111b &#x3D; 0xff &#x3D; 255<br>The 10 bit RGB values range from 0 to 1023. </p>
+<blockquote>
+<p>10位RGB值的范围从0到1023。</p>
+</blockquote>
+<p>XR30 is the same as AR30 but with no alpha channel.</p>
+<blockquote>
+<p>XR30与AR30相同，但没有阿尔法通道。</p>
+</blockquote>
+<h1 id="AB64-and-AR64"><a href="#AB64-and-AR64" class="headerlink" title="AB64 and AR64"></a>AB64 and AR64</h1><p>AB64 is similar to ABGR, with 16 bit (2 bytes) per channel. Each channel stores an unsigned short. </p>
+<blockquote>
+<p>AB64类似于ABGR，每个通道16位（2字节）。每个通道存储一个无符号短。</p>
+</blockquote>
+<p>In memory R is the lowest and A is the highest. </p>
+<blockquote>
+<p>在存储器中，R是最低的，A是最高的。</p>
+</blockquote>
+<p>Each channel has value ranges from 0 to 65535. </p>
+<blockquote>
+<p>每个通道的值范围从0到65535。</p>
+</blockquote>
+<p>AR64 is similar to ARGB.</p>
+<blockquote>
+<p>AR64与ARGB相似。</p>
+</blockquote>
+<h1 id="NV12-and-NV21"><a href="#NV12-and-NV21" class="headerlink" title="NV12 and NV21"></a>NV12 and NV21</h1><p>NV12 is a biplanar format with a full sized Y plane followed by a single chroma plane with weaved U and V values. </p>
+<blockquote>
+<p>NV12是一种双平面格式，其具有全尺寸Y平面，随后是具有编织U和V值的单个色度平面。</p>
+</blockquote>
+<p>NV21 is the same but with weaved V and U values. </p>
+<blockquote>
+<p>NV21相同，但具有编织的V和U值。</p>
+</blockquote>
+<p>The 12 in NV12 refers to 12 bits per pixel. NV12 has a half width and half height chroma channel, and therefore is a 420 subsampling. </p>
+<blockquote>
+<p>NV12中的12表示每像素12位。NV12具有半宽和半高色度通道，因此是420次采样。</p>
+</blockquote>
+<p>NV16 is 16 bits per pixel, with half width and full height. aka 422. </p>
+<blockquote>
+<p>NV16为每像素16位，具有半宽和全高。即422。</p>
+</blockquote>
+<p>NV24 is 24 bits per pixel with full sized chroma channel. aka 444. </p>
+<blockquote>
+<p>NV24是具有全尺寸色度通道的每像素24位。又名444。</p>
+</blockquote>
+<p>Most NV12 functions allow the destination Y pointer to be NULL.</p>
+<blockquote>
+<p>大多数NV12函数允许目标Y指针为NULL。</p>
+</blockquote>
+<h1 id="YUY2-and-UYVY"><a href="#YUY2-and-UYVY" class="headerlink" title="YUY2 and UYVY"></a>YUY2 and UYVY</h1><p>YUY2 is a packed YUV format with half width, full height.</p>
+<blockquote>
+<p>YUY2是一种半宽全高的压缩YUV格式。</p>
+</blockquote>
+<p>YUY2 is YUYV in memory </p>
+<blockquote>
+<p>YUY2在内存中为Y、U、Y、V</p>
+</blockquote>
+<p>UYVY is UYVY in memory</p>
+<blockquote>
+<p>UYVY在内存中为U、Y、V、Y</p>
+</blockquote>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://www.5isan.com">whileTrue0x90</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://www.5isan.com/2023/03/29/libyuv-%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB-01-%E6%A0%BC%E5%BC%8F%E4%BB%8B%E7%BB%8D/">http://www.5isan.com/2023/03/29/libyuv-%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB-01-%E6%A0%BC%E5%BC%8F%E4%BB%8B%E7%BB%8D/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://www.5isan.com" target="_blank">whileTrue0x90's blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/libyuv/">libyuv</a></div><div class="post_share"><div class="social-share" data-image="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2023/03/28/libyuv-%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB-00-%E5%87%86%E5%A4%87%E9%98%B6%E6%AE%B5/" title="libyuv 源码阅读 00 准备阶段"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">libyuv 源码阅读 00 准备阶段</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2023/03/28/libyuv-%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB-00-%E5%87%86%E5%A4%87%E9%98%B6%E6%AE%B5/" title="libyuv 源码阅读 00 准备阶段"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-03-28</div><div class="title">libyuv 源码阅读 00 准备阶段</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">whileTrue0x90</div><div class="author-info__description">乾坤未定, 你我皆是黑马</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">1</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Introduction-%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.</span> <span class="toc-text">Introduction 介绍</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Core-Formats-%E6%A0%B8%E5%BF%83%E6%A0%BC%E5%BC%8F"><span class="toc-number">2.</span> <span class="toc-text">Core Formats 核心格式</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#OSX-Core-Media-Pixel-Formats-OSX%E6%A0%B8%E5%BF%83%E5%AA%92%E4%BD%93%E5%83%8F%E7%B4%A0%E6%A0%BC%E5%BC%8F"><span class="toc-number">3.</span> <span class="toc-text">OSX Core Media Pixel Formats OSX核心媒体像素格式</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#FOURCC-Four-Charactacter-Code-List-OURCC%EF%BC%88%E5%9B%9B%E4%B8%AA%E5%AD%97%E7%AC%A6%E4%BB%A3%E7%A0%81%EF%BC%89%E5%88%97%E8%A1%A8"><span class="toc-number">4.</span> <span class="toc-text">FOURCC (Four Charactacter Code) List OURCC（四个字符代码）列表</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Planar-YUV-%E5%B9%B3%E9%9D%A2YUV"><span class="toc-number">5.</span> <span class="toc-text">Planar YUV 平面YUV</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Color-space-%E9%A2%9C%E8%89%B2%E7%A9%BA%E9%97%B4"><span class="toc-number">6.</span> <span class="toc-text">Color space 颜色空间</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#HDR-formats-HDR%E6%A0%BC%E5%BC%8F"><span class="toc-number">7.</span> <span class="toc-text">HDR formats HDR格式</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#The-ARGB-FOURCC"><span class="toc-number">8.</span> <span class="toc-text">The ARGB FOURCC</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#RGB24-and-RAW"><span class="toc-number">9.</span> <span class="toc-text">RGB24 and RAW</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#AR30-and-XR30"><span class="toc-number">10.</span> <span class="toc-text">AR30 and XR30</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#AB64-and-AR64"><span class="toc-number">11.</span> <span class="toc-text">AB64 and AR64</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#NV12-and-NV21"><span class="toc-number">12.</span> <span class="toc-text">NV12 and NV21</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#YUY2-and-UYVY"><span class="toc-number">13.</span> <span class="toc-text">YUY2 and UYVY</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/03/29/libyuv-%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB-01-%E6%A0%BC%E5%BC%8F%E4%BB%8B%E7%BB%8D/" title="libyuv 源码阅读 01 格式介绍">libyuv 源码阅读 01 格式介绍</a><time datetime="2023-03-29T02:33:56.000Z" title="发表于 2023-03-29 10:33:56">2023-03-29</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/03/28/libyuv-%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB-00-%E5%87%86%E5%A4%87%E9%98%B6%E6%AE%B5/" title="libyuv 源码阅读 00 准备阶段">libyuv 源码阅读 00 准备阶段</a><time datetime="2023-03-28T02:25:46.000Z" title="发表于 2023-03-28 10:25:46">2023-03-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/03/18/hello-world/" title="Hello World">Hello World</a><time datetime="2023-03-18T11:51:32.948Z" title="发表于 2023-03-18 19:51:32">2023-03-18</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By whileTrue0x90</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
